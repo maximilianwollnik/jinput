@@ -112,6 +112,7 @@ public interface Component {
         /**
          * Returns a non-localized string description of this axis type.
          */
+        @Override
         public String toString() {
             return name;
         }
@@ -397,9 +398,21 @@ public interface Component {
              */        
             public static final Button BASE6 = new Button("Base 6");
             
-            /** erm, dunno, but it's in the defines so it might exist.
+            /** PS3 button - cross.
              */        
-            public static final Button DEAD = new Button("Dead");
+            public static final Button CROSS = new Button("Cross");
+            
+            /** PS3 button - triangle.
+             */ 
+            public static final Button TRIANGLE = new Button("Triangle");
+            
+            /** PS3 button - square.
+             */ 
+            public static final Button SQUARE = new Button("Square");
+            
+            /** PS3 button - circle.
+             */ 
+            public static final Button CIRCLE = new Button("Circle");
             
             /** 'A' button on a gamepad
              */        

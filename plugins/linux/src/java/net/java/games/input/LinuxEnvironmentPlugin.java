@@ -25,17 +25,17 @@
  */
 package net.java.games.input;
 
-import net.java.games.util.plugins.Plugin;
-
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ArrayList;
-import java.io.IOException;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+
+import net.java.games.util.plugins.Plugin;
 
 /** Environment plugin for linux
  * @author elias
@@ -60,13 +60,15 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 	static void loadLibrary(final String lib_name) {
 		AccessController.doPrivileged(
 				new PrivilegedAction() {
-					public final Object run() {
+					@Override
+          public final Object run() {
 						String lib_path = System.getProperty("net.java.games.input.librarypath");
 						try {
-							if (lib_path != null)
-								System.load(lib_path + File.separator + System.mapLibraryName(lib_name));
-							else
-								System.loadLibrary(lib_name);
+							if (lib_path != null) {
+                System.load(lib_path + File.separator + System.mapLibraryName(lib_name));
+              } else {
+                System.loadLibrary(lib_name);
+              }
 						} catch (UnsatisfiedLinkError e) {
 							logln("Failed to load library: " + e.getMessage());
 							e.printStackTrace();
@@ -79,7 +81,8 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
     
 	static String getPrivilegedProperty(final String property) {
 	       return (String)AccessController.doPrivileged(new PrivilegedAction() {
-	                public Object run() {
+	                @Override
+                  public Object run() {
 	                    return System.getProperty(property);
 	                }
 	            });
@@ -88,6 +91,7 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 
 	static String getPrivilegedProperty(final String property, final String default_value) {
        return (String)AccessController.doPrivileged(new PrivilegedAction() {
+                @Override
                 public Object run() {
                     return System.getProperty(property, default_value);
                 }
@@ -96,9 +100,10 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 		
 	static {
 		String osName = getPrivilegedProperty("os.name", "").trim();
+		String osArch = getPrivilegedProperty("os.arch");
 		if(osName.equals("Linux")) {
             supported = true;
-			if("i386".equals(getPrivilegedProperty("os.arch"))) {
+			if("i386".equals(osArch) || "arm".equals(osArch)) {
 				loadLibrary(LIBNAME);
 			} else {
 				loadLibrary(LIBNAME + POSTFIX64BIT);
@@ -116,7 +121,8 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 	        logln("Linux plugin claims to have found " + controllers.length + " controllers");
 			AccessController.doPrivileged(
 					new PrivilegedAction() {
-						public final Object run() {
+						@Override
+            public final Object run() {
 							Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 							return null;
 						}
@@ -131,6 +137,7 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
      * @return Returns a list of all controllers available to this environment,
      * or an empty array if there are no controllers in this environment.
      */
+    @Override
     public final Controller[] getControllers() {
         return controllers;
     }
@@ -196,10 +203,11 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 	
 	private final static Mouse createMouseFromDevice(LinuxEventDevice device, Component[] components) throws IOException {
 		Mouse mouse = new LinuxMouse(device, components, new Controller[]{}, device.getRumblers());
-		if (mouse.getX() != null && mouse.getY() != null && mouse.getPrimaryButton() != null)
-			return mouse;
-		else
-			return null;
+		if (mouse.getX() != null && mouse.getY() != null && mouse.getPrimaryButton() != null) {
+      return mouse;
+    } else {
+      return null;
+    }
 	}
 	
 	private final static Keyboard createKeyboardFromDevice(LinuxEventDevice device, Component[] components) throws IOException {
@@ -223,8 +231,9 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 			return createKeyboardFromDevice(device, components);
 		} else if (type == Controller.Type.STICK || type == Controller.Type.GAMEPAD) {
 			return createJoystickFromDevice(device, components, type);
-		} else
-			return null;
+		} else {
+      return null;
+    }
 	}
 	
     private final Controller[] enumerateControllers() {
@@ -351,7 +360,7 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 		LinuxJoystickAxis[] hatBits = new LinuxJoystickAxis[6];
 		
 		for (int i = 0; i < device.getNumButtons(); i++) {
-			Component.Identifier button_id = (Component.Identifier)LinuxNativeTypesMap.getButtonID(buttonMap[i]);
+			Component.Identifier button_id = LinuxNativeTypesMap.getButtonID(buttonMap[i]);
 			if (button_id != null) {
 				LinuxJoystickButton button = new LinuxJoystickButton(button_id);
 				device.registerButton(i, button);
@@ -398,8 +407,9 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 		File[] joystick_device_files = enumerateJoystickDeviceFiles("/dev/input");
 		if (joystick_device_files == null || joystick_device_files.length == 0) {
 			joystick_device_files = enumerateJoystickDeviceFiles("/dev");
-			if (joystick_device_files == null)
-				return;
+			if (joystick_device_files == null) {
+        return;
+      }
 		}
 		for (int i = 0; i < joystick_device_files.length; i++) {
 			File event_file = joystick_device_files[i];
@@ -410,8 +420,9 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 				if (controller != null) {
 					controllers.add(controller);
 					devices.add(device);
-				} else
-					device.close();
+				} else {
+          device.close();
+        }
 			} catch (IOException e) {
 				logln("Failed to open device (" + event_file + "): " + e.getMessage());
 			}
@@ -421,7 +432,8 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 	private final static File[] enumerateJoystickDeviceFiles(final String dev_path) {
 		final File dev = new File(dev_path);
 		return listFilesPrivileged(dev, new FilenameFilter() {
-			public final boolean accept(File dir, String name) {
+			@Override
+      public final boolean accept(File dir, String name) {
 				return name.startsWith("js");
 			}
 		});
@@ -429,7 +441,8 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 
 	private static String getAbsolutePathPrivileged(final File file) {
 		return (String)AccessController.doPrivileged(new PrivilegedAction() {
-			public Object run() {
+			@Override
+      public Object run() {
 				return file.getAbsolutePath();
 			}
 		});
@@ -437,10 +450,12 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 
 	private static File[] listFilesPrivileged(final File dir, final FilenameFilter filter) {
 		return (File[])AccessController.doPrivileged(new PrivilegedAction() {
-			public Object run() {
+			@Override
+      public Object run() {
 				File[] files = dir.listFiles(filter);
 				Arrays.sort(files, new Comparator(){
-					public int compare(Object f1, Object f2) {
+					@Override
+          public int compare(Object f1, Object f2) {
 						return ((File)f1).getName().compareTo(((File)f2).getName());
 					}
 				});
@@ -452,12 +467,14 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
     private final void enumerateEventControllers(List controllers) {
 		final File dev = new File("/dev/input");
 		File[] event_device_files = listFilesPrivileged(dev, new FilenameFilter() {
-			public final boolean accept(File dir, String name) {
+			@Override
+      public final boolean accept(File dir, String name) {
 				return name.startsWith("event");
 			}
 		});
-		if (event_device_files == null)
-			return;
+		if (event_device_files == null) {
+      return;
+    }
 		for (int i = 0; i < event_device_files.length; i++) {
 			File event_file = event_device_files[i];
 			try {
@@ -468,8 +485,9 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 					if (controller != null) {
 						controllers.add(controller);
 						devices.add(device);
-					} else
-						device.close();
+					} else {
+            device.close();
+          }
 				} catch (IOException e) {
 					logln("Failed to create Controller: " + e.getMessage());
 					device.close();
@@ -481,7 +499,8 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
     }
 
 	private final class ShutdownHook extends Thread {
-		public final void run() {
+		@Override
+    public final void run() {
 			for (int i = 0; i < devices.size(); i++) {
 				try {
 					LinuxDevice device = (LinuxDevice)devices.get(i);
@@ -493,7 +512,8 @@ public final class LinuxEnvironmentPlugin extends ControllerEnvironment implemen
 		}
 	}
 
-	public boolean isSupported() {
+	@Override
+  public boolean isSupported() {
 		return supported;
 	}
 }

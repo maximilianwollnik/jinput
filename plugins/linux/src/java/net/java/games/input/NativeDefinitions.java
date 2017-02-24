@@ -298,7 +298,10 @@ class NativeDefinitions {
     public static final int BTN_BASE4 = 0x129;
     public static final int BTN_BASE5 = 0x12a;
     public static final int BTN_BASE6 = 0x12b;
-    public static final int BTN_DEAD = 0x12f;
+    public static final int BTN_TRIANGLE = 0x12c;
+    public static final int BTN_CIRCLE = 0x12d;
+    public static final int BTN_CROSS = 0x12e;
+    public static final int BTN_SQUARE = 0x12f;
     public static final int BTN_GAMEPAD = 0x130;
     public static final int BTN_A = 0x130;
     public static final int BTN_B = 0x131;

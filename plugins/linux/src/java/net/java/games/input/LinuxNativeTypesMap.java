@@ -294,7 +294,10 @@ class LinuxNativeTypesMap {
         buttonIDs[NativeDefinitions.BTN_BASE4] = Component.Identifier.Button.BASE4;
         buttonIDs[NativeDefinitions.BTN_BASE5] = Component.Identifier.Button.BASE5;
         buttonIDs[NativeDefinitions.BTN_BASE6] = Component.Identifier.Button.BASE6;
-        buttonIDs[NativeDefinitions.BTN_DEAD] = Component.Identifier.Button.DEAD;
+        buttonIDs[NativeDefinitions.BTN_SQUARE] = Component.Identifier.Button.SQUARE;
+        buttonIDs[NativeDefinitions.BTN_TRIANGLE] = Component.Identifier.Button.TRIANGLE;
+        buttonIDs[NativeDefinitions.BTN_CROSS] = Component.Identifier.Button.CROSS;
+        buttonIDs[NativeDefinitions.BTN_CIRCLE] = Component.Identifier.Button.CIRCLE;
         
         // Gamepad
         buttonIDs[NativeDefinitions.BTN_A] = Component.Identifier.Button.A;
@@ -418,7 +421,10 @@ class LinuxNativeTypesMap {
 			case NativeDefinitions.BTN_BASE4 : 
 			case NativeDefinitions.BTN_BASE5 : 
 			case NativeDefinitions.BTN_BASE6 : 
-			case NativeDefinitions.BTN_DEAD : 
+			case NativeDefinitions.BTN_CIRCLE :
+			case NativeDefinitions.BTN_TRIANGLE :
+			case NativeDefinitions.BTN_CROSS :
+			case NativeDefinitions.BTN_SQUARE :
 				return Controller.Type.STICK;
 			case NativeDefinitions.BTN_A : 
 			case NativeDefinitions.BTN_B : 
